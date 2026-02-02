@@ -9,10 +9,10 @@
 #include "Wire.h"
 #include <ArduinoOTA.h>
 
-constexpr char WIFI_SSID[] = "abcd";
-constexpr char WIFI_PASSWORD[] = "123456789";
+constexpr char WIFI_SSID[] = "gerkenna";
+constexpr char WIFI_PASSWORD[] = "tritintu";
 
-constexpr char TOKEN[] = "7s5pokn2se622pzn1jxu";
+constexpr char TOKEN[] = "rqnbIzxJt7tVWT5DzzTf";
 
 constexpr char THINGSBOARD_SERVER[] = "app.coreiot.io";
 constexpr uint16_t THINGSBOARD_PORT = 1883U;
