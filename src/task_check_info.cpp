@@ -5,6 +5,7 @@ void Load_info_File()
   File file = LittleFS.open("/info.dat", "r");
   if (!file)
   {
+    Serial.println("❌ Failed to open info file for reading!");
     return;
   }
   DynamicJsonDocument doc(4096);
@@ -60,6 +61,7 @@ void Save_info_File(String wifi_ssid, String wifi_pass, String CORE_IOT_TOKEN, S
 
 bool check_info_File(bool check)
 {
+  // Serial.println("Checking info file...");
   if (!check)
   {
     if (!LittleFS.begin(true))
@@ -67,13 +69,19 @@ bool check_info_File(bool check)
       Serial.println("❌ Lỗi khởi động LittleFS!");
       return false;
     }
+    Serial.println("✅ LittleFS mounted");
     Load_info_File();
+    Serial.print("Loaded WIFI_SSID: ");
+    Serial.println(WIFI_SSID);
+    Serial.print("Loaded WIFI_PASS: ");
+    Serial.println(WIFI_PASS);
   }
   
   if (WIFI_SSID.isEmpty() && WIFI_PASS.isEmpty())
   {
     if (!check)
     {
+      Serial.println("No WiFi credentials found — starting AP");
       startAP();
     }
     return false;

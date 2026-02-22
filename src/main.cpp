@@ -3,7 +3,7 @@
 #include "led_blinky.h"
 #include "neo_blinky.h"
 #include "temp_humi_monitor.h"
-// #include "mainserver.h"
+#include "mainserver.h"
 // #include "tinyml.h"
 #include "coreiot.h"
 
@@ -17,6 +17,8 @@
 void setup()
 {
   Serial.begin(115200);
+  delay(10000);
+  Serial.println("Starting YoloUNO...");
   check_info_File(0);
 
   xTaskCreate(led_blinky, "Task LED Blink", 2048, NULL, 2, NULL);

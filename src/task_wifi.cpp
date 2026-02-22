@@ -3,7 +3,14 @@
 void startAP()
 {
     WiFi.mode(WIFI_AP);
-    WiFi.softAP(String(SSID_AP), String(PASS_AP));
+    Serial.print("Starting AP with SSID: ");
+    Serial.println(String(SSID_AP));
+    Serial.print("Using PASS: ");
+    Serial.println(String(PASS_AP));
+    bool ok = WiFi.softAP(String(SSID_AP), String(PASS_AP));
+    Serial.print("softAP() returned: ");
+    Serial.println(ok ? "true" : "false");
+    delay(200); // allow AP stack to initialize
     Serial.print("AP IP: ");
     Serial.println(WiFi.softAPIP());
 }

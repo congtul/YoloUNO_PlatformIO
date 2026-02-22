@@ -1,8 +1,8 @@
 #include "coreiot.h"
 
 // ----------- CONFIGURE THESE! -----------
-const char* coreIOT_Server = "10.235.76.226";  
-const char* coreIOT_Token = "g7drm1amhd3dchr379xu";   // Device Access Token
+const char* coreIOT_Server = "app.coreiot.io";  
+const char* coreIOT_Token = "rqnbIzxJt7tVWT5DzzTf";   // Device Access Token
 const int   mqttPort = 1883;
 // ----------------------------------------
 
@@ -15,11 +15,10 @@ void reconnect() {
   while (!client.connected()) {
     Serial.print("Attempting MQTT connection...");
     // Attempt to connect (username=token, password=empty)
-    //if (client.connect("ESP32Client", coreIOT_Token, NULL)) {
     String clientId = "ESP32Client-";
     clientId += String(random(0xffff), HEX);
 
-    if (client.connect(clientId.c_str())) {
+    if (client.connect(clientId.c_str(), CORE_IOT_TOKEN.c_str(), NULL)) {
         
       Serial.println("connected to CoreIOT Server!");
       client.subscribe("v1/devices/me/rpc/request/+");
@@ -36,14 +35,25 @@ void reconnect() {
 
 
 void callback(char* topic, byte* payload, unsigned int length) {
+  if (!topic || !payload || length == 0) {
+    Serial.println("❌ Invalid callback parameters");
+    return;
+  }
+
   Serial.print("Message arrived [");
   Serial.print(topic);
   Serial.println("] ");
 
-  // Allocate a temporary buffer for the message
+  // Allocate buffer safely (limit to 512 bytes max)
+  if (length > 512) {
+    Serial.println("❌ Message too long, ignoring");
+    return;
+  }
+
   char message[length + 1];
   memcpy(message, payload, length);
   message[length] = '\0';
+  
   Serial.print("Payload: ");
   Serial.println(message);
 
@@ -52,28 +62,48 @@ void callback(char* topic, byte* payload, unsigned int length) {
   DeserializationError error = deserializeJson(doc, message);
 
   if (error) {
-    Serial.print("deserializeJson() failed: ");
+    Serial.print("❌ deserializeJson() failed: ");
     Serial.println(error.c_str());
     return;
   }
 
   const char* method = doc["method"];
-  if (strcmp(method, "setStateLED") == 0) {
-    // Check params type (could be boolean, int, or string according to your RPC)
-    // Example: {"method": "setValueLED", "params": "ON"}
-    const char* params = doc["params"];
+  if (!method) {
+    Serial.println("❌ No method field in JSON");
+    return;
+  }
 
-    if (strcmp(params, "ON") == 0) {
-      Serial.println("Device turned ON.");
-      //TODO
-
-    } else {   
-      Serial.println("Device turned OFF.");
-      //TODO
-
+  if (strcmp(method, "setLedSwitchValue") == 0) {
+    bool ledState = false;
+    
+    // Handle params as boolean or string
+    if (doc["params"].is<bool>()) {
+      ledState = doc["params"].as<bool>();
+      Serial.print("✅ params is boolean: ");
+      Serial.println(ledState ? "true (ON)" : "false (OFF)");
+    } else if (doc["params"].is<const char*>()) {
+      const char* params = doc["params"];
+      if (strcmp(params, "ON") == 0 || strcmp(params, "true") == 0) {
+        ledState = true;
+      } else {
+        ledState = false;
+      }
+      Serial.print("✅ params is string: ");
+      Serial.println(params);
+    } else {
+      Serial.println("❌ Unknown params type");
+      return;
+    }
+    
+    if (ledState) {
+      Serial.println("🔴 Device turned ON.");
+      // TODO: Control LED/relay here
+    } else {
+      Serial.println("🔵 Device turned OFF.");
+      // TODO: Control LED/relay here
     }
   } else {
-    Serial.print("Unknown method: ");
+    Serial.print("⚠️ Unknown method: ");
     Serial.println(method);
   }
 }
