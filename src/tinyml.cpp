@@ -67,6 +67,17 @@ void tiny_ml_task(void *pvParameters)
 
         // Get and process output
         float result = output->data.f[0];
+        ai_result = 100 * result; // Store the result in a global variable for use in other tasks
+        if (result > 0.5)
+        {
+            Serial.println("Anomaly detected!");
+            alarm_warning = true;
+        }
+        else
+        {
+            Serial.println("Normal conditions.");
+            alarm_warning = false;
+        }
         Serial.print("Inference result: ");
         Serial.println(result);
 

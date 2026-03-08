@@ -8,8 +8,10 @@
 
 extern float glob_temperature;
 extern float glob_humidity;
+extern float ai_result;
 
 extern boolean led_enable;
+extern boolean alarm_warning;
 
 extern String WIFI_SSID;
 extern String WIFI_PASS;
