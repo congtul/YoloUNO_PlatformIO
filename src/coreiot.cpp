@@ -96,11 +96,11 @@ void callback(char* topic, byte* payload, unsigned int length) {
     }
     
     if (ledState) {
-      Serial.println("🔴 Device turned ON.");
-      // TODO: Control LED/relay here
+      Serial.println("Device turned ON.");
+      led_enable = true;
     } else {
-      Serial.println("🔵 Device turned OFF.");
-      // TODO: Control LED/relay here
+      Serial.println("Device turned OFF.");
+      led_enable = false;
     }
   } else {
     Serial.print("⚠️ Unknown method: ");

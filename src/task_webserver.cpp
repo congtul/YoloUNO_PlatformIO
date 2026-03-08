@@ -18,6 +18,24 @@ void Webserver_sendata(String data)
     }
 }
 
+static unsigned long lastSend = 0;
+
+void sendSensorWS(float temp, float humi)
+{
+    if (millis() - lastSend > 30000)   // 30s
+    {
+        lastSend = millis();
+
+        String payload = "{\"temperature\":";
+        payload += temp;
+        payload += ",\"humidity\":";
+        payload += humi;
+        payload += "}";
+
+        Webserver_sendata(payload);
+    }
+}
+
 void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len)
 {
     if (type == WS_EVT_CONNECT)
@@ -70,5 +88,8 @@ void Webserver_reconnect()
     {
         connnectWSV();
     }
+    
+    ws.cleanupClients();
+    sendSensorWS(glob_temperature, glob_humidity);
     ElegantOTA.loop();
 }

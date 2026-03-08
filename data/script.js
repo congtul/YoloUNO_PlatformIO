@@ -1,19 +1,23 @@
 // ==================== WEBSOCKET ====================
 var gateway = `ws://${window.location.hostname}/ws`;
 var websocket;
-
-window.addEventListener('load', onLoad);
+var gaugeTemp;
+var gaugeHumi;
+var isSocketReady = false;
+//window.addEventListener('load', onLoad);
 
 function onLoad(event) {
     initWebSocket();
 }
 
 function onOpen(event) {
-    console.log('Connection opened');
+    console.log('✅ WebSocket connected');
+    isSocketReady = true;
 }
 
 function onClose(event) {
-    console.log('Connection closed');
+    console.log('❌ WebSocket closed');
+    isSocketReady = false;
     setTimeout(initWebSocket, 2000);
 }
 
@@ -26,25 +30,34 @@ function initWebSocket() {
 }
 
 function Send_Data(data) {
-    if (websocket && websocket.readyState === WebSocket.OPEN) {
+    if (isSocketReady) {
         websocket.send(data);
         console.log("📤 Gửi:", data);
     } else {
         console.warn("⚠️ WebSocket chưa sẵn sàng!");
-        alert("⚠️ WebSocket chưa kết nối!");
+        //alert("⚠️ WebSocket chưa kết nối!");
     }
 }
 
 function onMessage(event) {
     console.log("📩 Nhận:", event.data);
+
     try {
         var data = JSON.parse(event.data);
-        // Có thể thêm xử lý riêng nếu cần (ví dụ cập nhật trạng thái)
+
+        // Cập nhật gauge
+        if (data.temperature !== undefined) {
+            gaugeTemp.refresh(data.temperature);
+        }
+
+        if (data.humidity !== undefined) {
+            gaugeHumi.refresh(data.humidity);
+        }
+
     } catch (e) {
         console.warn("Không phải JSON hợp lệ:", event.data);
     }
 }
-
 
 // ==================== UI NAVIGATION ====================
 let relayList = [];
@@ -59,8 +72,9 @@ function showSection(id, event) {
 
 
 // ==================== HOME GAUGES ====================
-window.onload = function () {
-    const gaugeTemp = new JustGage({
+window.addEventListener('load', function () {
+	initWebSocket();
+    gaugeTemp = new JustGage({
         id: "gauge_temp",
         value: 26,
         min: -10,
@@ -73,7 +87,7 @@ window.onload = function () {
         levelColors: ["#00BCD4", "#4CAF50", "#FFC107", "#F44336"]
     });
 
-    const gaugeHumi = new JustGage({
+    gaugeHumi = new JustGage({
         id: "gauge_humi",
         value: 60,
         min: 0,
@@ -86,11 +100,21 @@ window.onload = function () {
         levelColors: ["#42A5F5", "#00BCD4", "#0288D1"]
     });
 
-    setInterval(() => {
-        gaugeTemp.refresh(Math.floor(Math.random() * 15) + 20);
-        gaugeHumi.refresh(Math.floor(Math.random() * 40) + 40);
-    }, 3000);
-};
+    // setInterval(() => {
+    //     gaugeTemp.refresh(Math.floor(Math.random() * 15) + 20);
+    //     gaugeHumi.refresh(Math.floor(Math.random() * 40) + 40);
+    // }, 3000);
+    // setInterval(() => {
+
+    // fetch("/getData")   // nếu bạn làm API riêng từ ESP32 hoặc server
+    //     .then(res => res.json())
+    //     .then(data => {
+    //         gaugeTemp.refresh(data.temperature);
+    //         gaugeHumi.refresh(data.humidity);
+    //     });
+        
+    // }, 3000);
+});
 
 
 // ==================== DEVICE FUNCTIONS ====================

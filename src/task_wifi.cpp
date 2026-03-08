@@ -24,6 +24,9 @@ void startSTA()
 
     WiFi.mode(WIFI_STA);
 
+    Serial.print("Connecting to SSID: ");
+    Serial.println(WIFI_SSID);
+
     if (WIFI_PASS.isEmpty())
     {
         WiFi.begin(WIFI_SSID.c_str());
@@ -35,9 +38,24 @@ void startSTA()
 
     while (WiFi.status() != WL_CONNECTED)
     {
-        vTaskDelay(100 / portTICK_PERIOD_MS);
+        Serial.print(".");
+        vTaskDelay(500 / portTICK_PERIOD_MS);
     }
-    //Give a semaphore here
+
+    Serial.println();
+    Serial.println("WiFi Connected!");
+
+    // 🔹 In IP của ESP
+    Serial.print("ESP STA IP: ");
+    Serial.println(WiFi.localIP());
+
+    Serial.print("Gateway: ");
+    Serial.println(WiFi.gatewayIP());
+
+    Serial.print("Subnet: ");
+    Serial.println(WiFi.subnetMask());
+
+    // Give semaphore when internet ready
     xSemaphoreGive(xBinarySemaphoreInternet);
 }
 
