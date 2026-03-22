@@ -1,3 +1,15 @@
+# Báo cáo bài tập cá nhân môn IOT
+
+## Thông tin sinh viên
+- Họ tên: Lê Công Tú  
+- MSSV: 2570367  
+
+## Demo hệ thống
+- Link Youtube: https://youtu.be/seRCjbpvOHQ  
+
+## Dataset
+- dht20_saigon_demo_dataset.csv
+
 # Espressif 32: development platform for [PlatformIO](https://platformio.org)
 
 [![Build Status](https://github.com/platformio/platform-espressif32/workflows/Examples/badge.svg)](https://github.com/platformio/platform-espressif32/actions)
